@@ -1,14 +1,23 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vie Commune - espace tache</title>
+    <link rel="stylesheet" href="{{ asset('css/commonLife.css') }}">
+</head>
+
 <x-app-layout>
     <x-slot name="header">
         @auth
             @if (auth()->user()->is_admin)
-                <h1 class="flex items-center gap-1 text-sm font-normal">
-                    Bonjour administrateur {{ auth()->user()->first_name }}
-                    <button id="openModal"
-                            class="fixed bottom-4 right-4 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors">
-                        BOUTON
+                <div class="flex items-center gap-2">
+                    <h1 class="text-sm font-normal">
+                        Bonjour administrateur {{ auth()->user()->first_name }}
+                    </h1>
+                    <!-- Bouton modifié avec id pour l'ouverture de la modale -->
+                    <button id="openModal" type="button" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                        Ajouter une tâche
                     </button>
-                </h1>
+                </div>
             @else
                 <h1 class="flex items-center gap-1 text-sm font-normal">
                     Bonjour {{ auth()->user()->first_name }}
@@ -35,16 +44,16 @@
         </div>
     </div>
 
-
     {{-- Modale contenant le formulaire pour créer une tâche (initialement cachée) --}}
-    <div id="modalForm" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden">
-        <div class="bg-white rounded-lg p-6 shadow relative w-full max-w-md">
-            {{-- Bouton de fermeture de la modale --}}
-            <button id="closeModal" class="absolute top-2 right-2 text-gray-500 text-2xl">&times;</button>
+    <div id="modalForm" class="fixed inset-0 flex items-center justify-center modal-overlay hidden">
+        <div class="modal-container">
+            <!-- Bouton de fermeture -->
+            <button id="closeModal" class="modal-close">&times;</button>
             <h2 class="text-xl font-bold mb-4">Créer une tâche</h2>
-            {{-- Formulaire de création --}}
+            <!-- Formulaire -->
             <form id="taskForm">
                 @csrf
+                <!-- Champs du formulaire -->
                 <div class="mb-4">
                     <label for="title" class="block text-gray-700 mb-1">Titre</label>
                     <input type="text" name="title" id="title"
@@ -74,7 +83,7 @@
             const taskForm = document.getElementById('taskForm');
             const tasksContainer = document.getElementById('tasksContainer');
 
-            // Ouvrir la modale lors du clic sur le bouton "+"
+            // Ouvrir la modale lors du clic sur le bouton "Ajouter une tâche"
             openModal.addEventListener('click', function () {
                 modalForm.classList.remove('hidden');
             });

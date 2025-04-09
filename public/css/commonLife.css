@@ -1,0 +1,86 @@
+/* commonLife.css */
+
+/* ------------ Global ------------- */
+body {
+    /* Vous pouvez définir ici des styles globaux s'il y a lieu */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f9fafb;
+}
+
+/* ------------ Modale ------------- */
+
+/* Overlay de la modale : recouvre toute la page et sert d'arrière-plan semi-transparent */
+.modal-overlay {
+    background-color: rgba(31, 41, 55, 0.75); /* équivalent de bg-gray-800 bg-opacity-75 en Tailwind */
+}
+
+/* Container de la modale : boîte blanche centrée */
+.modal-container {
+    background-color: #ffffff;
+    border-radius: 0.5rem;       /* arrondi (8px) */
+    padding: 1.5rem;            /* 24px d'espace autour */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* légère ombre portée */
+    position: relative;
+    max-width: 28rem;           /* largeur maximale, environ 448px */
+    width: 100%;
+}
+
+/* Bouton de fermeture de la modale */
+.modal-close {
+    position: absolute;
+    top: 0.5rem;                /* 8px en haut */
+    right: 0.5rem;              /* 8px à droite */
+    font-size: 1.5rem;          /* taille du texte */
+    color: #6b7280;             /* gris (text-gray-500) */
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* ------------ Bouton "Ajouter une tâche" ------------- */
+
+/* Styles complémentaires pour le bouton d'ajout de tâche (en plus des classes Tailwind) */
+#openModal {
+    /* Optionnel: Définir une bordure ou d'autres styles personnalisés */
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;        /* taille de texte adaptée */
+}
+
+/* ------------ Section des Tâches ------------- */
+
+/* Si besoin, vous pouvez personnaliser l'apparence du conteneur des tâches */
+#tasksContainer {
+    margin-top: 1rem;
+}
+
+/* Carte de tâche personnalisée (déjà partiellement stylée avec Tailwind) */
+/* Vous pouvez ajouter ici des surcharges ou des règles spécifiques */
+.task-card {
+    /* Exemple de surcharge si vous voulez uniformiser avec d'autres éléments */
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.task-card h3 {
+    font-weight: bold;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.task-card p {
+    color: #374151;
+}
+
+/* ------------ Réglages Responsive ------------- */
+
+/* Exemple d'ajustement optionnel pour des petits écrans */
+@media (max-width: 640px) {
+    .modal-container {
+        padding: 1rem;
+        max-width: 95%;
+    }
+}
