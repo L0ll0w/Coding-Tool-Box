@@ -1,0 +1,10 @@
+/node_modules
+/vendor
+
+/public/storage
+/storage/*.key
+
+.env
+
+.idea/*
+.idea/workspace.xml
