@@ -1,16 +1,18 @@
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vie Commune - espace tache</title>
-    <link rel="stylesheet" href="{{ asset('css/commonLife.css') }}">
-</head>
 
 <x-app-layout>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vie Commune - espace tache</title>
+        <link rel="stylesheet" href="{{ asset('css/commonLife.css') }}">
+    </head>
     <x-slot name="header">
-        @auth
+
+
+    @auth
             @if (auth()->user()->is_admin)
                 <div class="flex items-center gap-2">
-                    <h1 class="text-sm font-normal">
+                    <h1 class="admin-greeting text-sm font-normal">
                         Bonjour administrateur {{ auth()->user()->first_name }}
                     </h1>
                     <!-- Bouton modifié avec id pour l'ouverture de la modale -->

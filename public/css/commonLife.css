@@ -14,6 +14,16 @@ body {
     background-color: rgba(31, 41, 55, 0.75); /* équivalent de bg-gray-800 bg-opacity-75 en Tailwind */
 }
 
+/* Styles pour le message d'administration */
+.admin-greeting {
+    color: #1f2937;       /* Une couleur foncée, style text-gray-800 de Tailwind */
+    font-size: 3.125rem;  /* 18px, par exemple */
+    font-weight: 600;     /* Semibold */
+    letter-spacing: 0.5px;/* Un peu d'espacement entre les lettres */
+    margin: 0.5rem 0;     /* Espacement au-dessus et en dessous */
+}
+
+
 /* Container de la modale : boîte blanche centrée */
 .modal-container {
     background-color: #ffffff;
@@ -41,10 +51,15 @@ body {
 
 /* Styles complémentaires pour le bouton d'ajout de tâche (en plus des classes Tailwind) */
 #openModal {
-    /* Optionnel: Définir une bordure ou d'autres styles personnalisés */
+    position: fixed;
+    bottom: 10rem;      /* distance du bas, ajustez la valeur si besoin */
+    right: 10rem;       /* distance de la droite, ajustez la valeur si besoin */
     border: none;
     cursor: pointer;
-    font-size: 0.875rem;        /* taille de texte adaptée */
+    font-size: 1.875rem; /* taille de texte adaptée */
+    z-index: 50;         /* afin de le placer au-dessus des autres éléments */
+    background-color: gray;
+    color: white;
 }
 
 /* ------------ Section des Tâches ------------- */
@@ -52,15 +67,16 @@ body {
 /* Si besoin, vous pouvez personnaliser l'apparence du conteneur des tâches */
 #tasksContainer {
     margin-top: 1rem;
+    background-color: gray;
 }
 
 /* Carte de tâche personnalisée (déjà partiellement stylée avec Tailwind) */
 /* Vous pouvez ajouter ici des surcharges ou des règles spécifiques */
 .task-card {
     /* Exemple de surcharge si vous voulez uniformiser avec d'autres éléments */
-    background-color: #ffffff;
-    border-radius: 0.5rem;
-    padding: 1rem;
+    color: cyan;
+    border-radius: 5.5rem;
+    padding: 5rem;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;
 }
@@ -69,9 +85,11 @@ body {
     font-weight: bold;
     font-size: 1.125rem;
     margin-bottom: 0.5rem;
+
 }
 
 .task-card p {
+
     color: #374151;
 }
 
