@@ -15,7 +15,7 @@
                     <h1 class="admin-greeting text-sm font-normal">
                         Bonjour administrateur {{ auth()->user()->first_name }}
                     </h1>
-                    <!-- Bouton "Ajouter une tâche" -->
+                    <!-- Bouton pour ouvrir la modale -->
                     <button id="openModal" type="button" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                         Ajouter une tâche
                     </button>
@@ -55,29 +55,25 @@
         </div>
     </div>
 
-    <!-- Modale contenant le formulaire pour créer/modifier une tâche (initialement cachée) -->
+    <!-- Modale pour créer/modifier une tâche -->
     <div id="modalForm" class="fixed inset-0 flex items-center justify-center modal-overlay hidden">
         <div class="modal-container">
             <button id="closeModal" class="modal-close">&times;</button>
             <h2 class="text-xl font-bold mb-4" id="modalTitle">Créer une tâche</h2>
-            <!-- Formulaire -->
+            <!-- Formulaire : On utilise POST pour la création et pour la modification avec _method en mode édition -->
             <form id="taskForm">
                 @csrf
-                <!-- Champ caché pour l'id de la tâche (mode édition) -->
+                <!-- Champ caché pour l'ID de la tâche (mode édition) -->
                 <input type="hidden" id="taskId" name="taskId" value="">
-                <!-- Champ caché pour override _method (sera rempli en mode édition) -->
+                <!-- Champ caché pour indiquer le type de requête (sera rempli avec "PUT" en mode édition) -->
                 <input type="hidden" id="overrideMethod" name="_method" value="">
                 <div class="mb-4">
                     <label for="title" class="block text-gray-700 mb-1">Titre</label>
-                    <input type="text" name="title" id="title"
-                           class="w-full px-3 py-2 border border-gray-300 rounded"
-                           placeholder="Titre de la tâche" required>
+                    <input type="text" name="title" id="title" class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Titre de la tâche" required>
                 </div>
                 <div class="mb-4">
                     <label for="description" class="block text-gray-700 mb-1">Description</label>
-                    <textarea name="description" id="description"
-                              class="w-full px-3 py-2 border border-gray-300 rounded"
-                              placeholder="Description de la tâche" required></textarea>
+                    <textarea name="description" id="description" class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Description de la tâche" required></textarea>
                 </div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
                     Enregistrer
@@ -93,7 +89,7 @@
             // Fonction pour afficher une notification
             function showNotification(message) {
                 const notif = document.createElement('div');
-                notif.classList.add('notif');  // La classe notif sera stylisée dans le CSS
+                notif.classList.add('notif');  // Définissez le style dans commonLife.css
                 notif.textContent = message;
                 document.body.appendChild(notif);
                 setTimeout(() => {
@@ -140,18 +136,17 @@
                 }
             });
 
-            // Traitement de la soumission du formulaire (création/modification)
+            // Soumission du formulaire pour création/modification
             taskForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const formData = new FormData(taskForm);
                 let url, method;
 
                 if (taskIdInput.value) {
-                    // Mode modification : remplir le champ _method avec "PUT"
+                    // Mode modification : ajouter _method = PUT
                     overrideMethodInput.value = "PUT";
-                    // On envoie la requête en POST (le champ _method indiquera PUT)
                     url = "{{ url('/tasks') }}/" + taskIdInput.value;
-                    method = "POST";
+                    method = "POST";  // On envoie en POST avec le champ _method qui indique PUT
                 } else {
                     // Mode création
                     url = "{{ route('tasks.store') }}";
@@ -216,7 +211,7 @@
                     });
             });
 
-            // Ouvrir la modale en mode édition lors du clic sur "Modifier"
+            // Ouvrir la modale en mode édition
             tasksContainer.addEventListener('click', function (e) {
                 if (e.target && e.target.classList.contains('edit-btn')) {
                     const taskCard = e.target.closest('.task-card-cyan');

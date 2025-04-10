@@ -24,19 +24,18 @@ class TaskController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Récupère la tâche par son ID ou échoue si elle n'existe pas
+        // Pour déboguer, vous pouvez temporairement ajouter dd($request->all());
+        dd($request->all());
+
         $task = Task::findOrFail($id);
 
-        // Valide les données envoyées par la requête
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
         ]);
 
-        // Mise à jour de la tâche avec les données validées
         $task->update($validated);
 
-        // Retourne une réponse JSON ou redirige selon vos besoins
         return response()->json($task);
     }
 
