@@ -93,6 +93,20 @@ body {
     color: #374151;
 }
 
+/* Notification */
+.notif {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background-color: #4caf50;  /* Vert pour succès */
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: opacity 0.5s ease;
+    z-index: 1000;
+}
+
 /* ------------ Réglages Responsive ------------- */
 
 /* Exemple d'ajustement optionnel pour des petits écrans */
