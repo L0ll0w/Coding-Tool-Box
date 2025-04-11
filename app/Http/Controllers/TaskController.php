@@ -25,8 +25,6 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         // Pour déboguer, vous pouvez temporairement ajouter dd($request->all());
-        dd($request->all());
-
         $task = Task::findOrFail($id);
 
         $validated = $request->validate([

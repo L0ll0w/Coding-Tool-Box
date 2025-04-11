@@ -144,7 +144,7 @@
 
                 if (taskIdInput.value) {
                     // Mode modification : ajouter _method = PUT
-                    overrideMethodInput.value = "PUT";
+                    overrideMethodInput.value = "POST";
                     url = "{{ url('/tasks') }}/" + taskIdInput.value;
                     method = "POST";  // On envoie en POST avec le champ _method qui indique PUT
                 } else {

@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
         Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
-        Route::put('/tasks/{id}', [TaskController::class, 'update'])->name('tasks.update');
+        Route::post('/tasks/{id}', [TaskController::class, 'update'])->name('tasks.update');
     });
 
 });
