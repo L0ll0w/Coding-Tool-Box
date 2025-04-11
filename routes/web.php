@@ -11,6 +11,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaskSubmissionController;
 
 // Redirect the root path to /dashboard
 Route::redirect('/', 'dashboard');
@@ -50,6 +51,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
         Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
         Route::post('/tasks/{id}', [TaskController::class, 'update'])->name('tasks.update');
+
+        Route::post('/task-submissions/{id}', [TaskSubmissionController::class, 'update'])->name('task.submissions.update');
+
+        Route::post('/task-submissions', [TaskSubmissionController::class, 'store'])->name('task.submissions.store');
+
     });
 
 });
