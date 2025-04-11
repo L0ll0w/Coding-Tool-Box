@@ -1,7 +1,5 @@
-
 <x-app-layout>
     <x-slot name="header">
-
         <script>
             window.Laravel = {
                 baseUrl: "{{ url('') }}",
@@ -14,10 +12,10 @@
         </script>
 
         @auth
-            @if (auth()->user()->is_admin)
-                <!-- Header pour admin -->
+            @if(auth()->user()->is_admin)
+                <!-- Header pour administrateur -->
                 <div class="flex items-center gap-2">
-                    <h1 class="admin-greeting text-sm font-normal ">
+                    <h1 class="admin-greeting text-2xl font-bold">
                         Bonjour administrateur {{ auth()->user()->first_name }}
                     </h1>
                     <x-forms.primary-button type="button" dataAttributes="data-modal-toggle=#create-task-modal">
@@ -27,42 +25,49 @@
             @else
                 <!-- Header pour étudiant -->
                 <div class="flex items-center gap-2">
-                    <h1 class="flex items-center gap-1 text-sm font-normal">
+                    <h1 class="text-2xl font-bold">
                         Bonjour {{ auth()->user()->first_name }}
                     </h1>
-                    <!-- Bouton pour accéder à l'historique des tâches pointées -->
                     <a href="{{ route('my-task-history') }}" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
                         Voir mon historique
                     </a>
                 </div>
             @endif
         @endauth
+    </x-slot>
 
     <!-- Affichage des tâches -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div id="tasksContainer" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div id="tasksContainer" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @if(isset($tasks) && $tasks->count() > 0)
                     @foreach($tasks as $task)
-                        <div class="task-card-cyan {{ auth()->check() && auth()->user()->is_admin ? 'draggable-task' : '' }}"
+                        <div class="card bg-white shadow-md rounded-lg p-4 transition hover:shadow-xl"
                              data-id="{{ $task->id }}"
                              data-title="{{ $task->title }}"
                              data-description="{{ $task->description }}">
-                            <!-- Pour Admin : boutons d'édition et de suppression -->
-                            @if(auth()->check() && auth()->user()->is_admin)
-                                <button class="delete-btn">&times;</button>
-                                <button class="edit-btn">Modifier</button>
-                            @endif
-                            <!-- Pour Étudiant : bouton "Tâche terminée" -->
-                            @if(auth()->check() && !auth()->user()->is_admin)
-                                <button class="complete-task-btn">Tâche terminée</button>
-                            @endif
-                            <h3 class="font-bold text-lg">{{ $task->title }}</h3>
-                            <p>{{ $task->description }}</p>
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xl font-bold">{{ $task->title }}</h3>
+                                @if(auth()->check() && auth()->user()->is_admin)
+                                    <div class="flex space-x-2">
+                                        <button class="delete-btn text-red-500 hover:text-red-700" title="Supprimer">&times;</button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-700" title="Modifier">Modifier</button>
+                                    </div>
+                                @elseif(auth()->check())
+                                    <button class="complete-task-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 text-sm">
+                                        Tâche terminée
+                                    </button>
+                                @endif
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-gray-700">{{ $task->description }}</p>
+                            </div>
                         </div>
                     @endforeach
                 @else
-                    <p>Aucune tâche à afficher.</p>
+                    <div class="col-span-full text-center text-gray-600 text-lg font-medium py-4">
+                    <p class="text-center">Aucune tâche à afficher.
+                    </p>
                 @endif
             </div>
         </div>
@@ -90,7 +95,4 @@
             </form>
         </div>
     </div>
-    <script src="{{ asset('js/CommonLife.js') }}"></script>
 </x-app-layout>
-
-

@@ -84,6 +84,7 @@
 <script src="{{ asset('metronic/js/core.bundle.js') }}"></script>
 <script src="{{ asset('metronic/vendors/apexcharts/apexcharts.min.js') }}"></script>
 <script src="{{ asset('metronic/js/widgets/general.js') }}"></script>
+<script src="{{ asset('js/app.js') }}"></script>
 <!-- End of Scripts -->
 </body>
 </html>
