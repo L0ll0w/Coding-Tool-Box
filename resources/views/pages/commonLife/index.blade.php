@@ -1,28 +1,21 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vie Commune - Espace Tâches</title>
-    <link rel="stylesheet" href="{{ asset('css/commonLife.css') }}">
-    <!-- Passage des variables Laravel au JavaScript -->
-    <script>
-        window.Laravel = {
-            baseUrl: "{{ url('') }}",
-            routes: {
-                tasksStore: "{{ route('tasks.store') }}",
-                taskSubmissionsStore: "{{ route('task.submissions.store') }}"
-            },
-            isAdmin: {{ auth()->check() && auth()->user()->is_admin ? 'true' : 'false' }}
-        };
-    </script>
-</head>
-<body>
+
 <x-app-layout>
     <x-slot name="header">
+
+        <script>
+            window.Laravel = {
+                baseUrl: "{{ url('') }}",
+                routes: {
+                    tasksStore: "{{ route('tasks.store') }}",
+                    taskSubmissionsStore: "{{ route('task.submissions.store') }}"
+                },
+                isAdmin: {{ auth()->check() && auth()->user()->is_admin ? 'true' : 'false' }}
+            };
+        </script>
+
         @auth
             @if (auth()->user()->is_admin)
-                <!-- En mode Admin : Affichage du header avec bouton d'édition -->
+                <!-- Header pour admin -->
                 <div class="flex items-center gap-2">
                     <h1 class="admin-greeting text-sm font-normal">
                         Bonjour administrateur {{ auth()->user()->first_name }}
@@ -32,13 +25,18 @@
                     </button>
                 </div>
             @else
-                <!-- Pour l'étudiant -->
-                <h1 class="flex items-center gap-1 text-sm font-normal">
-                    Bonjour {{ auth()->user()->first_name }}
-                </h1>
+                <!-- Header pour étudiant -->
+                <div class="flex items-center gap-2">
+                    <h1 class="flex items-center gap-1 text-sm font-normal">
+                        Bonjour {{ auth()->user()->first_name }}
+                    </h1>
+                    <!-- Bouton pour accéder à l'historique des tâches pointées -->
+                    <a href="{{ route('my-task-history') }}" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                        Voir mon historique
+                    </a>
+                </div>
             @endif
         @endauth
-    </x-slot>
 
     <!-- Affichage des tâches -->
     <div class="py-12">
@@ -116,9 +114,7 @@
             </form>
         </div>
     </div>
+    <script src="{{ asset('js/CommonLife.js') }}"></script>
 </x-app-layout>
 
-<!-- Inclusion du fichier JavaScript externe -->
-<script src="{{ asset('js/CommonLife.js') }}"></script>
-</body>
-</html>
+

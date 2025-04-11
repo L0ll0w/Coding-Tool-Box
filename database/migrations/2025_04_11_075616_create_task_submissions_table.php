@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('task_id');
             $table->unsignedBigInteger('user_id');
+            $table->string('original_title');
+            $table->text('original_description');
             $table->boolean('is_completed')->default(true); // ou selon votre logique
             $table->text('comment')->nullable();
             $table->timestamps();

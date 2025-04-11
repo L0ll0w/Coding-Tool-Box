@@ -16,9 +16,13 @@ class TaskSubmissionController extends Controller
             'comment'     => 'nullable|string',
         ]);
 
+        $task = \App\Models\Task::find($validated['task_id']);
+
         // Créer la soumission pour l'étudiant connecté
         $submission = TaskSubmission::create([
             'task_id'    => $validated['task_id'],
+            'original_title'      => $task ? $task->title : '',
+            'original_description'=> $task ? $task->description : '',
             'user_id'    => Auth::id(),
             'is_completed' => true,
             'comment'    => $validated['comment'] ?? null,
@@ -45,4 +49,17 @@ class TaskSubmissionController extends Controller
 
         return response()->json($submission);
     }
+
+    // Méthode pour afficher l'historique des soumissions de l'utilisateur connecté
+    public function history()
+    {
+        // Récupère les soumissions de l'utilisateur connecté où la tâche est accomplie
+        $submissions = \App\Models\TaskSubmission::where('user_id', auth()->id())
+            ->where('is_completed', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('my-task-history', compact('submissions'));
+    }
+
 }

@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/task-submissions/{id}', [TaskSubmissionController::class, 'update'])->name('task.submissions.update');
 
         Route::post('/task-submissions', [TaskSubmissionController::class, 'store'])->name('task.submissions.store');
-
+        Route::get('/my-task-history', [TaskSubmissionController::class, 'history'])->name('my-task-history');
     });
 
 });

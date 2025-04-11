@@ -12,6 +12,8 @@ class TaskSubmission extends Model
     protected $fillable = [
         'task_id',
         'user_id',
+        'original_title',
+        'original_description',
         'is_completed',
         'comment'
     ];
