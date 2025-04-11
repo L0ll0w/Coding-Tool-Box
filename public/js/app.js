@@ -10430,6 +10430,274 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./resources/js/CommonLife.js":
+/*!************************************!*\
+  !*** ./resources/js/CommonLife.js ***!
+  \************************************/
+/***/ (() => {
+
+document.addEventListener('DOMContentLoaded', function () {
+  /* ------------------ Fonction de notification ------------------ */
+  function showNotification(message) {
+    var notif = document.createElement('div');
+    notif.classList.add('notif'); // Définir le style dans commonLife.css
+    notif.textContent = message;
+    document.body.appendChild(notif);
+    setTimeout(function () {
+      notif.style.opacity = '0';
+      setTimeout(function () {
+        notif.remove();
+      }, 500);
+    }, 3000);
+  }
+
+  /* ------------------ Variables DOM communes ------------------ */
+  var openModal = document.getElementById('openModal');
+  var closeModal = document.getElementById('closeModal');
+  var modalForm = document.getElementById('modalForm');
+  var taskForm = document.getElementById('taskForm');
+  var tasksContainer = document.getElementById('tasksContainer');
+  var modalTitle = document.getElementById('modalTitle');
+  var taskIdInput = document.getElementById('taskId');
+  var overrideMethodInput = document.getElementById('overrideMethod');
+  var titleInput = document.getElementById('title');
+  var descriptionInput = document.getElementById('description');
+
+  /* ------------------ Variables pour la modale de soumission (étudiant) ------------------ */
+  var completeTaskButtons = document.querySelectorAll('.complete-task-btn');
+  var submissionModal = document.getElementById('submissionModal');
+  var closeSubmissionModal = document.getElementById('closeSubmissionModal');
+  var submissionForm = document.getElementById('submissionForm');
+  var submissionTaskIdInput = document.getElementById('submissionTaskId');
+  var submissionCommentInput = document.getElementById('submissionComment');
+
+  /* ------------------ Fonctions utilitaires ------------------ */
+  function resetTaskForm() {
+    taskForm.reset();
+    taskIdInput.value = "";
+    overrideMethodInput.value = "";
+    modalTitle.textContent = "Créer une tâche";
+  }
+
+  /* ------------------ Gestion de la modale Admin (création/modification) ------------------ */
+  if (openModal) {
+    openModal.addEventListener('click', function () {
+      resetTaskForm();
+      modalForm.classList.remove('hidden');
+    });
+  }
+  if (closeModal) {
+    closeModal.addEventListener('click', function () {
+      return modalForm.classList.add('hidden');
+    });
+    modalForm.addEventListener('click', function (e) {
+      if (e.target === modalForm) modalForm.classList.add('hidden');
+    });
+  }
+  taskForm && taskForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var url, method;
+    if (taskIdInput.value) {
+      // Mode modification
+      overrideMethodInput.value = "POST"; // Doit être défini AVANT la création du FormData
+      url = "".concat(window.Laravel.baseUrl, "/tasks/").concat(taskIdInput.value);
+      method = "POST"; // Envoi en POST avec _method=PUT
+    } else {
+      // Création
+      url = window.Laravel.routes.tasksStore;
+      method = "POST";
+    }
+    var formData = new FormData(taskForm);
+    fetch(url, {
+      method: method,
+      headers: {
+        "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value,
+        "Accept": "application/json"
+      },
+      body: formData
+    }).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      if (data.errors) {
+        console.error("Validation errors:", data.errors);
+        alert("Erreur de validation : " + JSON.stringify(data.errors));
+        return;
+      }
+      if (taskIdInput.value) {
+        // Mode modification
+        var taskCard = document.querySelector(".task-card-cyan[data-id=\"".concat(data.id, "\"]"));
+        if (taskCard) {
+          taskCard.querySelector('h3').textContent = data.title;
+          taskCard.querySelector('p').textContent = data.description;
+          taskCard.setAttribute('data-title', data.title);
+          taskCard.setAttribute('data-description', data.description);
+        }
+        showNotification("Tâche modifiée avec succès");
+      } else {
+        // Mode création
+        var _taskCard = document.createElement('div');
+        _taskCard.classList.add('task-card-cyan');
+        _taskCard.setAttribute('data-id', data.id);
+        _taskCard.setAttribute('data-title', data.title);
+        _taskCard.setAttribute('data-description', data.description);
+        if (window.Laravel.isAdmin === true) {
+          _taskCard.classList.add('draggable-task');
+          _taskCard.setAttribute('draggable', 'true');
+          var deleteBtn = document.createElement('button');
+          deleteBtn.classList.add('delete-btn');
+          deleteBtn.textContent = '×';
+          _taskCard.appendChild(deleteBtn);
+          var editBtn = document.createElement('button');
+          editBtn.classList.add('edit-btn');
+          editBtn.textContent = 'Modifier';
+          _taskCard.appendChild(editBtn);
+        }
+        var titleElement = document.createElement('h3');
+        titleElement.classList.add('font-bold', 'text-lg');
+        titleElement.textContent = data.title;
+        var descriptionElement = document.createElement('p');
+        descriptionElement.textContent = data.description;
+        _taskCard.appendChild(titleElement);
+        _taskCard.appendChild(descriptionElement);
+        tasksContainer.appendChild(_taskCard);
+      }
+      resetTaskForm();
+      modalForm.classList.add('hidden');
+    })["catch"](function (error) {
+      return console.error("Erreur:", error);
+    });
+  });
+
+  // Ouvrir la modale en mode édition (admin)
+  tasksContainer && tasksContainer.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('edit-btn')) {
+      var taskCard = e.target.closest('.task-card-cyan');
+      var id = taskCard.getAttribute('data-id');
+      var title = taskCard.getAttribute('data-title');
+      var description = taskCard.getAttribute('data-description');
+      taskIdInput.value = id;
+      titleInput.value = title;
+      descriptionInput.value = description;
+      modalTitle.textContent = "Modifier la tâche";
+      modalForm.classList.remove('hidden');
+    }
+  });
+
+  // Suppression d'une tâche (admin)
+  tasksContainer && tasksContainer.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('delete-btn')) {
+      if (confirm("Voulez-vous vraiment supprimer cette tâche ?")) {
+        var taskCard = e.target.closest('.task-card-cyan');
+        var taskId = taskCard.getAttribute('data-id');
+        fetch("".concat(window.Laravel.baseUrl, "/tasks/").concat(taskId), {
+          method: "DELETE",
+          headers: {
+            "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value,
+            "Accept": "application/json"
+          }
+        }).then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          if (data.success) {
+            taskCard.remove();
+          } else {
+            alert("Une erreur est survenue lors de la suppression.");
+          }
+        })["catch"](function (error) {
+          return console.error("Erreur :", error);
+        });
+      }
+    }
+  });
+
+  // Activation du Drag & Drop pour l'administrateur
+  if (window.Laravel.isAdmin === true) {
+    var draggableCards = document.querySelectorAll('.draggable-task');
+    draggableCards.forEach(function (card) {
+      return card.setAttribute('draggable', 'true');
+    });
+    var draggedElement = null;
+    tasksContainer.addEventListener('dragstart', function (e) {
+      if (e.target && e.target.classList.contains('draggable-task')) {
+        draggedElement = e.target;
+        e.target.style.opacity = 0.5;
+      }
+    });
+    tasksContainer.addEventListener('dragend', function (e) {
+      if (e.target && e.target.classList.contains('draggable-task')) {
+        e.target.style.opacity = "";
+      }
+    });
+    tasksContainer.addEventListener('dragover', function (e) {
+      e.preventDefault();
+    });
+    tasksContainer.addEventListener('dragenter', function (e) {
+      if (e.target && e.target.classList.contains('draggable-task')) {
+        e.target.classList.add('drag-over');
+      }
+    });
+    tasksContainer.addEventListener('dragleave', function (e) {
+      if (e.target && e.target.classList.contains('draggable-task')) {
+        e.target.classList.remove('drag-over');
+      }
+    });
+    tasksContainer.addEventListener('drop', function (e) {
+      e.preventDefault();
+      if (e.target && e.target.classList.contains('draggable-task')) {
+        e.target.classList.remove('drag-over');
+        tasksContainer.insertBefore(draggedElement, e.target.nextSibling);
+      }
+    });
+  }
+
+  /* ------------------ Gestion de la modale de soumission (étudiant) ------------------ */
+  if (completeTaskButtons) {
+    completeTaskButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var taskCard = button.closest('.task-card-cyan');
+        var taskId = taskCard.getAttribute('data-id');
+        submissionTaskIdInput.value = taskId;
+        submissionModal.classList.remove('hidden');
+      });
+    });
+  }
+  if (closeSubmissionModal) {
+    closeSubmissionModal.addEventListener('click', function () {
+      return submissionModal.classList.add('hidden');
+    });
+    submissionModal.addEventListener('click', function (e) {
+      if (e.target === submissionModal) submissionModal.classList.add('hidden');
+    });
+  }
+  submissionForm && submissionForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var formData = new FormData(submissionForm);
+    fetch(window.Laravel.routes.taskSubmissionsStore, {
+      method: "POST",
+      headers: {
+        "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value,
+        "Accept": "application/json"
+      },
+      body: formData
+    }).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      if (data.errors) {
+        alert("Erreur de validation: " + JSON.stringify(data.errors));
+        return;
+      }
+      alert("Votre participation a été validée avec succès.");
+      submissionModal.classList.add('hidden');
+      submissionForm.reset();
+      // Optionnel : Mettre à jour l'interface pour marquer la tâche comme complétée
+    })["catch"](function (error) {
+      return console.error("Erreur:", error);
+    });
+  });
+});
+
+/***/ }),
+
 /***/ "./resources/js/app.js":
 /*!*****************************!*\
   !*** ./resources/js/app.js ***!
@@ -10439,11 +10707,14 @@ process.umask = function() { return 0; };
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
-/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
+/* harmony import */ var _CommonLife__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CommonLife */ "./resources/js/CommonLife.js");
+/* harmony import */ var _CommonLife__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_CommonLife__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
 
 
-window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
-alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].start();
+
+window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_2__["default"];
+alpinejs__WEBPACK_IMPORTED_MODULE_2__["default"].start();
 
 /***/ }),
 
@@ -10534,6 +10805,18 @@ __webpack_require__.r(__webpack_exports__);
 /******/ 				}
 /******/ 			}
 /******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
 /******/ 		};
 /******/ 	})();
 /******/ 	

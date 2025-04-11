@@ -1,4 +1,5 @@
 import './bootstrap';
+import './CommonLife';
 
 import Alpine from 'alpinejs';
 
