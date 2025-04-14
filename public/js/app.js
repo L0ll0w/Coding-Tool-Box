@@ -10719,19 +10719,55 @@ document.addEventListener('DOMContentLoaded', function () {
         body: formData
       }).then(function (response) {
         return response.json();
-      }).then(function (data) {
+      })
+      // Dans le bloc .then() du submit du formulaire de soumission
+      .then(function (data) {
         if (data.errors) {
           alert("Erreur de validation: " + JSON.stringify(data.errors));
           return;
         }
         alert("Votre participation a été validée avec succès.");
+
+        // Récupérer l'ID de la tâche soumise depuis le champ caché
+        var submittedTaskId = submissionTaskIdInput.value;
+        // Sélectionner la carte correspondante via l'attribut data-id
+        var taskCard = document.querySelector(".card[data-id=\"".concat(submittedTaskId, "\"]"));
+        if (taskCard) {
+          // Supprimer le bouton "Tâche terminée" s'il existe
+          var completeBtn = taskCard.querySelector('.complete-task-btn');
+          if (completeBtn) {
+            completeBtn.remove();
+          }
+
+          // Créer le badge "Tâche accomplie"
+          var completedBadge = document.createElement('div');
+          completedBadge.className = 'px-4 py-2 bg-green-200 text-green-800 rounded text-sm';
+          completedBadge.textContent = "Tâche accomplie";
+
+          // Insérer le badge dans le header de la carte, à droite.
+          var headerContainer = taskCard.querySelector('.flex.justify-between');
+          if (headerContainer) {
+            // Si le header contient un conteneur pour les actions (boutons), le retirer avant d'y insérer le badge
+            var actionDiv = headerContainer.querySelector('.flex.space-x-2');
+            if (actionDiv) {
+              actionDiv.remove();
+            }
+            // Ajouter le badge à la fin du header
+            headerContainer.appendChild(completedBadge);
+          } else {
+            // Si aucun header spécifique n'est trouvé, l'ajouter à la fin de la carte
+            taskCard.appendChild(completedBadge);
+          }
+          // Mettre à jour l'attribut data-completed de la carte pour une potentielle utilisation future
+          taskCard.setAttribute('data-completed', 'true');
+        }
+        // Fermer le modal de soumission
         if (submissionModal) {
           submissionModal.classList.add('hidden');
         }
         submissionForm.reset();
-        // Optionnel: mettre à jour l'interface pour marquer la tâche comme complétée
       })["catch"](function (error) {
-        return console.error("Erreur:", error);
+        return console.error("Erreur lors de la soumission du formulaire étudiant:", error);
       });
     });
   }

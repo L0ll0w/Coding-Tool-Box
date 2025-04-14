@@ -11,4 +11,15 @@ class Task extends Model
 
     // Autorise l'affectation massive pour les champs 'title' et 'description'
     protected $fillable = ['title', 'description'];
+
+    public function submissions()
+    {
+        return $this->hasMany(TaskSubmission::class);
+    }
+
+    public function completedBy($userId)
+    {
+        return $this->submissions()->where('user_id', $userId)->exists();
+    }
+
 }
