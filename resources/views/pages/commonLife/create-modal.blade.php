@@ -1,6 +1,8 @@
+<!-- resources/views/task/create-task-modal.blade.php -->
 @extends('layouts.modal', [
     'id'    => 'create-task-modal',
-    'title'  => 'Créer une tâche',] )
+    'title' => 'Créer une tâche',
+])
 
 @section('modal-content')
     <form id="taskForm">
@@ -17,7 +19,7 @@
             <label for="description" class="block text-gray-700 mb-1">Description</label>
             <textarea name="description" id="description" class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Description de la tâche" required></textarea>
         </div>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+        <button id="closeModal" type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors" data-modal-dismiss="true">
             Enregistrer
         </button>
     </form>

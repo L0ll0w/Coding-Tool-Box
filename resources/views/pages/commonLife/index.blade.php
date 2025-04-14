@@ -18,7 +18,7 @@
                     <h1 class="admin-greeting text-2xl font-bold">
                         Bonjour administrateur {{ auth()->user()->first_name }}
                     </h1>
-                    <x-forms.primary-button type="button" dataAttributes="data-modal-toggle=#create-task-modal">
+                    <x-forms.primary-button  id="openModal" type="button" dataAttributes="data-modal-toggle=#create-task-modal">
                         Ajouter une tâche
                     </x-forms.primary-button>
                 </div>
@@ -47,7 +47,7 @@
                              data-title="{{ $task->title }}"
                              data-description="{{ $task->description }}">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-xl font-bold">{{ $task->title }}</h3>
+                                <h3 class="card-title text-xl font-bold">{{ $task->title }}</h3>
                                 @if(auth()->check() && auth()->user()->is_admin)
                                     <div class="flex space-x-2">
                                         <button class="delete-btn text-red-500 hover:text-red-700" title="Supprimer">&times;</button>
@@ -59,15 +59,15 @@
                                     </button>
                                 @endif
                             </div>
-                            <div class="mt-3">
+                            <div class="card-body mt-3">
                                 <p class="text-gray-700">{{ $task->description }}</p>
                             </div>
                         </div>
                     @endforeach
                 @else
-                    <div class="col-span-full text-center text-gray-600 text-lg font-medium py-4">
-                    <p class="text-center">Aucune tâche à afficher.
-                    </p>
+                    <div id="noTasksMessage" class="col-span-full text-center text-gray-600 text-lg font-medium py-4">
+                        Aucune tâche à afficher.
+                    </div>
                 @endif
             </div>
         </div>
@@ -95,4 +95,5 @@
             </form>
         </div>
     </div>
+
 </x-app-layout>

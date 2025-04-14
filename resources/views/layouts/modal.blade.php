@@ -1,12 +1,13 @@
-<div class="modal" data-modal="true" id="{{ $id }}">
+<!-- resources/views/layouts/modal.blade.php -->
+<div id="create-task-modal" class="modal" data-modal="true">
     <div class="modal-content max-w-[600px] top-[20%]">
         <div class="modal-header">
-            <h3 class="modal-title">
+            <h3 id="modalTitle" class="modal-title">
                 {{ $title }}
             </h3>
-            <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true">
-                <i class="ki-outline ki-cross">
-                </i>
+            <!-- Bouton de fermeture avec un attribut de data pour faciliter la fermeture par JS -->
+            <button id="closeModal" class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true">
+                <i class="ki-outline ki-cross"></i>
             </button>
         </div>
         <div class="modal-body">

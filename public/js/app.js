@@ -10440,7 +10440,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ------------------ Fonction de notification ------------------ */
   function showNotification(message) {
     var notif = document.createElement('div');
-    notif.classList.add('notif'); // Définissez le style dans commonLife.css
+    notif.classList.add('notif'); // Assurez-vous que la classe notif est définie dans commonLife.css pour masquer l'élément (e.g. display: none)
     notif.textContent = message;
     document.body.appendChild(notif);
     setTimeout(function () {
@@ -10454,7 +10454,6 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ------------------ Fonction pour mettre à jour le message "Aucune tâche à afficher" ------------------ */
   function updateNoTaskMessage() {
     var noTaskElement = document.getElementById('noTasksMessage');
-    // On considère qu'une tâche a la classe "card"
     var taskCards = tasksContainer.querySelectorAll('.card');
     if (taskCards.length === 0) {
       if (!noTaskElement) {
@@ -10472,9 +10471,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ------------------ Variables DOM - Partie Admin ------------------ */
+  // Pour le modal de création/modification, on utilise l'ID "create-task-modal"
   var openModal = document.getElementById('openModal');
   var closeModal = document.getElementById('closeModal');
-  var modalForm = document.getElementById('modalForm');
+  var modalForm = document.getElementById('create-task-modal'); // Assurez-vous que ce modal a l'ID "create-task-modal"
   var taskForm = document.getElementById('taskForm');
   var tasksContainer = document.getElementById('tasksContainer');
   var modalTitle = document.getElementById('modalTitle');
@@ -10489,40 +10489,53 @@ document.addEventListener('DOMContentLoaded', function () {
   var closeSubmissionModal = document.getElementById('closeSubmissionModal');
   var submissionForm = document.getElementById('submissionForm');
   var submissionTaskIdInput = document.getElementById('submissionTaskId');
+  // submissionCommentInput n'est pas utilisé directement dans le JS, mais on peut le définir si besoin
   var submissionCommentInput = document.getElementById('submissionComment');
 
-  /* ------------------ Fonctions utilitaires ------------------ */
+  /* ------------------ Fonction utilitaire pour réinitialiser le formulaire Admin ------------------ */
   function resetTaskForm() {
     taskForm.reset();
     taskIdInput.value = "";
     overrideMethodInput.value = "";
-    modalTitle.textContent = "Créer une tâche";
+    if (modalTitle) {
+      modalTitle.textContent = "Créer une tâche";
+    }
   }
 
   /* ------------------ Gestion de la modale Admin (Création/Modification) ------------------ */
   if (openModal) {
     openModal.addEventListener('click', function () {
+      console.log("DEBUG: Ouverture du formulaire d'administration (création/modification) de tâche.");
       resetTaskForm();
-      modalForm.classList.remove('hidden');
+      if (modalForm) {
+        modalForm.classList.remove('hidden');
+      } else {
+        console.warn("DEBUG: L'élément modalForm est introuvable.");
+      }
     });
   }
   if (closeModal) {
     closeModal.addEventListener('click', function () {
-      return modalForm.classList.add('hidden');
-    });
-    modalForm.addEventListener('click', function (e) {
-      if (e.target === modalForm) modalForm.classList.add('hidden');
+      console.log("DEBUG: Fermeture du formulaire d'administration (création/modification) de tâche.");
+      resetTaskForm();
+      if (modalForm) {
+        modalForm.classList.add('hidden');
+      } else {
+        console.warn("DEBUG: L'élément modalForm est introuvable.");
+      }
     });
   }
+
+  /* ------------------ Soumission du formulaire Admin (Création/Modification) ------------------ */
   if (taskForm) {
     taskForm.addEventListener('submit', function (e) {
       e.preventDefault();
       var url, method;
       if (taskIdInput.value) {
         // Mode modification
-        overrideMethodInput.value = "PUT"; // On définit _method en PUT
+        overrideMethodInput.value = "POST"; // On définit _method=PUT
         url = "".concat(window.Laravel.baseUrl, "/tasks/").concat(taskIdInput.value);
-        method = "POST"; // Envoi en POST avec _method=PUT
+        method = "POST"; // Envoi en POST avec override _method indiquant PUT
       } else {
         // Mode création
         url = window.Laravel.routes.tasksStore;
@@ -10548,8 +10561,14 @@ document.addEventListener('DOMContentLoaded', function () {
           // Mode modification : Mise à jour de la carte existante
           var taskCard = document.querySelector(".card[data-id=\"".concat(data.id, "\"]"));
           if (taskCard) {
-            taskCard.querySelector('.card-title').textContent = data.title;
-            taskCard.querySelector('.card-body p').textContent = data.description;
+            var cardTitleElement = taskCard.querySelector('.card-title');
+            if (cardTitleElement) {
+              cardTitleElement.textContent = data.title;
+            }
+            var cardBodyP = taskCard.querySelector('.card-body p');
+            if (cardBodyP) {
+              cardBodyP.textContent = data.description;
+            }
             taskCard.setAttribute('data-title', data.title);
             taskCard.setAttribute('data-description', data.description);
           }
@@ -10572,7 +10591,7 @@ document.addEventListener('DOMContentLoaded', function () {
             actionDiv.className = 'flex space-x-2';
             var deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn text-red-500 hover:text-red-700';
-            deleteBtn.textContent = '×';
+            deleteBtn.textContent = ' × ';
             var editBtn = document.createElement('button');
             editBtn.className = 'edit-btn text-blue-500 hover:text-blue-700';
             editBtn.textContent = 'Modifier';
@@ -10594,11 +10613,8 @@ document.addEventListener('DOMContentLoaded', function () {
           cardBody.appendChild(descP);
           _taskCard.appendChild(cardBody);
           tasksContainer.appendChild(_taskCard);
-          // Appeler updateNoTaskMessage pour supprimer le message "Aucune tâche à afficher" s'il existe
-          updateNoTaskMessage();
+          updateNoTaskMessage(); // Supprime le message "Aucune tâche à afficher" si présent
         }
-        resetTaskForm();
-        modalForm.classList.add('hidden');
       })["catch"](function (error) {
         return console.error("Erreur:", error);
       });
@@ -10608,17 +10624,41 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ------------------ Événement pour ouvrir la modale en mode édition (admin) ------------------ */
   if (tasksContainer) {
     tasksContainer.addEventListener('click', function (e) {
+      // Vérifier si on clique sur le bouton "Modifier"
       if (e.target && e.target.classList.contains('edit-btn')) {
+        console.log("DEBUG: Edit button clicked.");
+        console.log("DEBUG: e.target:", e.target);
         var taskCard = e.target.closest('.card');
-        if (!taskCard) return;
+        if (!taskCard) {
+          console.warn("DEBUG: Aucune carte ('.card') trouvée pour l'édition. Vérifiez votre structure HTML.");
+          return;
+        }
+        console.log("DEBUG: taskCard trouvé:", taskCard);
         var id = taskCard.getAttribute('data-id');
         var title = taskCard.getAttribute('data-title');
         var description = taskCard.getAttribute('data-description');
+        console.log("DEBUG: Found card attributes:", {
+          id: id,
+          title: title,
+          description: description
+        });
+
+        // Vérifier l'existence des champs du formulaire
+        if (!taskIdInput || !titleInput || !descriptionInput || !modalTitle) {
+          console.error("DEBUG: Un ou plusieurs éléments du formulaire d'édition sont introuvables.");
+          return;
+        }
         taskIdInput.value = id;
         titleInput.value = title;
         descriptionInput.value = description;
         modalTitle.textContent = "Modifier la tâche";
-        modalForm.classList.remove('hidden');
+        console.log("DEBUG: Modal title mis à jour, ouverture du modal.");
+        if (modalForm) {
+          console.log("DEBUG: modalForm trouvé, ouverture du modal.");
+          modalForm.classList.remove('hidden');
+        } else {
+          console.error("DEBUG: L'élément modalForm (ID: 'create-task-modal') n'a pas été trouvé.");
+        }
       }
     });
   }
@@ -10654,48 +10694,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ------------------ Activation du Drag & Drop pour l'administrateur ------------------ */
-  if (window.Laravel.isAdmin === true) {
-    var draggableCards = document.querySelectorAll('.draggable-task');
-    draggableCards.forEach(function (card) {
-      return card.setAttribute('draggable', 'true');
-    });
-    var draggedElement = null;
-    if (tasksContainer) {
-      tasksContainer.addEventListener('dragstart', function (e) {
-        if (e.target && e.target.classList.contains('draggable-task')) {
-          draggedElement = e.target;
-          e.target.style.opacity = 0.5;
-        }
-      });
-      tasksContainer.addEventListener('dragend', function (e) {
-        if (e.target && e.target.classList.contains('draggable-task')) {
-          e.target.style.opacity = "";
-        }
-      });
-      tasksContainer.addEventListener('dragover', function (e) {
-        e.preventDefault();
-      });
-      tasksContainer.addEventListener('dragenter', function (e) {
-        if (e.target && e.target.classList.contains('draggable-task')) {
-          e.target.classList.add('drag-over');
-        }
-      });
-      tasksContainer.addEventListener('dragleave', function (e) {
-        if (e.target && e.target.classList.contains('draggable-task')) {
-          e.target.classList.remove('drag-over');
-        }
-      });
-      tasksContainer.addEventListener('drop', function (e) {
-        e.preventDefault();
-        if (e.target && e.target.classList.contains('draggable-task')) {
-          e.target.classList.remove('drag-over');
-          tasksContainer.insertBefore(draggedElement, e.target.nextSibling);
-        }
-      });
-    }
-  }
-
   /* ------------------ Gestion de la modale de soumission (étudiant) ------------------ */
   if (completeTaskButtons && completeTaskButtons.length > 0) {
     completeTaskButtons.forEach(function (button) {
@@ -10704,13 +10702,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!taskCard) return;
         var taskId = taskCard.getAttribute('data-id');
         submissionTaskIdInput.value = taskId;
-        submissionModal.classList.remove('hidden');
+        if (submissionModal) {
+          submissionModal.classList.remove('hidden');
+        }
       });
     });
   }
   if (closeSubmissionModal) {
     closeSubmissionModal.addEventListener('click', function () {
-      return submissionModal.classList.add('hidden');
+      if (submissionModal) {
+        submissionModal.classList.add('hidden');
+      }
     });
     submissionModal.addEventListener('click', function (e) {
       if (e.target === submissionModal) submissionModal.classList.add('hidden');
@@ -10735,9 +10737,11 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         alert("Votre participation a été validée avec succès.");
-        submissionModal.classList.add('hidden');
+        if (submissionModal) {
+          submissionModal.classList.add('hidden');
+        }
         submissionForm.reset();
-        // Optionnel: Mettre à jour l'interface pour marquer la tâche comme complétée
+        // Optionnel: mettre à jour l'interface pour marquer la tâche comme complétée
       })["catch"](function (error) {
         return console.error("Erreur:", error);
       });
