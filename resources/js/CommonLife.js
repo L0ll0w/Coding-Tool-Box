@@ -1,18 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ------------------ Fonction de notification ------------------ */
-    function showNotification(message) {
-        const notif = document.createElement('div');
-        notif.classList.add('notif'); // Assurez-vous que la classe notif est définie dans commonLife.css pour masquer l'élément (e.g. display: none)
-        notif.textContent = message;
-        document.body.appendChild(notif);
-        setTimeout(() => {
-            notif.style.opacity = '0';
-            setTimeout(() => {
-                notif.remove();
-            }, 500);
-        }, 3000);
-    }
 
     /* ------------------ Fonction pour mettre à jour le message "Aucune tâche à afficher" ------------------ */
     function updateNoTaskMessage() {
@@ -91,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ------------------ Soumission du formulaire Admin (Création/Modification) ------------------ */
+
     if (taskForm) {
         taskForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -135,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             taskCard.setAttribute('data-title', data.title);
                             taskCard.setAttribute('data-description', data.description);
                         }
-                        showNotification("Tâche modifiée avec succès");
+
                     } else {
                         // Mode création : Construction d'une nouvelle carte
                         const taskCard = document.createElement('div');
@@ -155,41 +143,48 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (window.Laravel.isAdmin === true) {
                             const actionDiv = document.createElement('div');
                             actionDiv.className = 'flex space-x-2';
+
+                            // Bouton suppression
                             const deleteBtn = document.createElement('button');
                             deleteBtn.className = 'delete-btn text-red-500 hover:text-red-700';
-                            deleteBtn.textContent = ' × ';
-                            const editBtn = document.createElement('button');
-
-                            editBtn.className = 'edit-btn text-blue-500 hover:text-blue-700';
-                            editBtn.textContent = 'Modifier';
-                            editBtn.id = "openModal";
+                            deleteBtn.textContent = '×';
                             actionDiv.appendChild(deleteBtn);
+
+                            // Bouton édition — version mise à jour
+                            const editBtn = document.createElement('button');
+                            editBtn.className = ' edit-btn px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none';
+                            editBtn.textContent = 'Modifier';
+                            editBtn.setAttribute('data-modal-toggle', '#create-task-modal');
                             actionDiv.appendChild(editBtn);
                             cardHeader.appendChild(actionDiv);
                         } else {
-                            const completeBtn = document.createElement('button');
-                            completeBtn.className = 'complete-task-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 text-sm';
-                            completeBtn.textContent = 'Tâche terminée';
+                            // Exemple dans la branche de création
+                            if (!window.Laravel.isAdmin) {
+                                const completeBtn = document.createElement('button');
+                                completeBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none complete-task-btn';
+                                completeBtn.textContent = 'Tâche terminée';
+                                cardHeader.appendChild(completeBtn);
+                            }
 
-                            cardHeader.appendChild(completeBtn);
                         }
+
                         taskCard.appendChild(cardHeader);
 
                         const cardBody = document.createElement('div');
                         cardBody.className = 'card-body mt-3';
+
                         const descP = document.createElement('p');
                         descP.className = 'text-gray-700';
                         descP.textContent = data.description;
                         cardBody.appendChild(descP);
+
                         taskCard.appendChild(cardBody);
 
                         tasksContainer.appendChild(taskCard);
-                        updateNoTaskMessage(); // Supprime le message "Aucune tâche à afficher" si présent
+                        updateNoTaskMessage(); // Supprime le message "Aucune tâche à afficher" s'il est présent
                     }
 
-
-
-                })
+                    })
                 .catch(error => console.error("Erreur:", error));
         });
     }
@@ -227,12 +222,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 modalTitle.textContent = "Modifier la tâche";
                 console.log("DEBUG: Modal title mis à jour, ouverture du modal.");
 
-                if (modalForm) {
-                    console.log("DEBUG: modalForm trouvé, ouverture du modal.");
-                    taskForm.classList.remove('hidden');
-                } else {
-                    console.error("DEBUG: L'élément modalForm (ID: 'create-task-modal') n'a pas été trouvé.");
-                }
 
 
             }

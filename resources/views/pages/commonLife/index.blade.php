@@ -51,7 +51,9 @@
                                 @if(auth()->check() && auth()->user()->is_admin)
                                     <div class="flex space-x-2">
                                         <button class="delete-btn text-red-500 hover:text-red-700" title="Supprimer">&times;</button>
-                                        <button class="edit-btn text-blue-500 hover:text-blue-700" title="Modifier">Modifier</button>
+                                        <button class="edit-btn px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none "  data-modal-toggle="#create-task-modal">
+                                            Modifier
+                                        </button>
                                     </div>
                                 @elseif(auth()->check())
                                     <button class="complete-task-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 text-sm">
@@ -77,23 +79,7 @@
     @include('pages.commonLife.create-modal')
 
     <!-- Modale pour étudiant : Pointer la tâche comme terminée et ajouter un commentaire -->
-    <div id="submissionModal" class="fixed inset-0 flex items-center justify-center modal-overlay hidden">
-        <div class="modal-container">
-            <button id="closeSubmissionModal" class="modal-close">&times;</button>
-            <h2 class="text-xl font-bold mb-4">Tâche terminée</h2>
-            <form id="submissionForm">
-                @csrf
-                <!-- Champ caché pour l'ID de la tâche -->
-                <input type="hidden" id="submissionTaskId" name="task_id" value="">
-                <div class="mb-4">
-                    <label for="submissionComment" class="block text-gray-700 mb-1">Commentaire</label>
-                    <textarea name="comment" id="submissionComment" class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Décrivez ce que vous avez accompli" required></textarea>
-                </div>
-                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
-                    Valider ma participation
-                </button>
-            </form>
-        </div>
-    </div>
+    @include('pages.commonLife.create-modal')
+
 
 </x-app-layout>
