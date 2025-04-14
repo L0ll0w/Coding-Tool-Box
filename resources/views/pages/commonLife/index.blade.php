@@ -56,7 +56,7 @@
                                         </button>
                                     </div>
                                 @elseif(auth()->check())
-                                    <button class="complete-task-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 text-sm">
+                                    <button class="complete-task-btn  px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none " data-modal-toggle="#submission-modal">
                                         Tâche terminée
                                     </button>
                                 @endif
@@ -79,7 +79,7 @@
     @include('pages.commonLife.create-modal')
 
     <!-- Modale pour étudiant : Pointer la tâche comme terminée et ajouter un commentaire -->
-    @include('pages.commonLife.create-modal')
+    @include('pages.commonLife.submission-modal')
 
 
 </x-app-layout>

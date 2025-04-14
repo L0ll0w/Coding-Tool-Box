@@ -10471,12 +10471,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ------------------ Variables DOM - Partie Étudiant ------------------ */
   var completeTaskButtons = document.querySelectorAll('.complete-task-btn');
-  var submissionModal = document.getElementById('submissionModal');
+  var submissionModal = document.getElementById('submission-modal');
   var closeSubmissionModal = document.getElementById('closeSubmissionModal');
   var submissionForm = document.getElementById('submissionForm');
   var submissionTaskIdInput = document.getElementById('submissionTaskId');
-  // submissionCommentInput n'est pas utilisé directement dans le JS, mais on peut le définir si besoin
-  var submissionCommentInput = document.getElementById('submissionComment');
+  // submissionCommentInput n'est pas utilisé directement dans le JS
 
   /* ------------------ Fonction utilitaire pour réinitialiser le formulaire Admin ------------------ */
   function resetTaskForm() {
@@ -10692,6 +10691,8 @@ document.addEventListener('DOMContentLoaded', function () {
         submissionTaskIdInput.value = taskId;
         if (submissionModal) {
           submissionModal.classList.remove('hidden');
+          console.log("DEBUG: Ouverture du modal de soumission pour la tâche ID", taskId);
+          console.log(submissionModal.classList);
         }
       });
     });
@@ -10700,11 +10701,14 @@ document.addEventListener('DOMContentLoaded', function () {
     closeSubmissionModal.addEventListener('click', function () {
       if (submissionModal) {
         submissionModal.classList.add('hidden');
+        console.log("DEBUG: Fermeture du modal de soumission.");
       }
     });
-    submissionModal.addEventListener('click', function (e) {
-      if (e.target === submissionModal) submissionModal.classList.add('hidden');
-    });
+    if (submissionModal) {
+      submissionModal.addEventListener('click', function (e) {
+        if (e.target === submissionModal) submissionModal.classList.add('hidden');
+      });
+    }
   }
   if (submissionForm) {
     submissionForm.addEventListener('submit', function (e) {
@@ -10729,13 +10733,11 @@ document.addEventListener('DOMContentLoaded', function () {
           submissionModal.classList.add('hidden');
         }
         submissionForm.reset();
-        // Optionnel: mettre à jour l'interface pour marquer la tâche comme complétée
       })["catch"](function (error) {
-        return console.error("Erreur:", error);
+        return console.error("DEBUG: Erreur lors de la soumission du formulaire étudiant:", error);
       });
     });
   }
-
   // Appel initial pour mettre à jour le message "Aucune tâche à afficher"
   updateNoTaskMessage();
 });
