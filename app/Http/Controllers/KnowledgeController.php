@@ -16,12 +16,20 @@ class KnowledgeController extends Controller
      * @return Factory|View|Application|object
      */
     public function index() {
-        return view('pages.knowledge.index');
+        $qcms = \App\Models\Qcm::orderBy('created_at', 'desc')->get(); // ou filtrer selon l'utilisateur
+        return view('pages.knowledge.index', compact('qcms'));
     }
 
-    public function qcm() {
 
-        $prompt = "C'est quoi le gland de lait ?";
+    public function qcm(Request $request) {
+
+        $validated = $request->validate([
+            'subject' => 'required|string|max:255',
+        ]);
+
+        $subject = $validated['subject'];
+
+        $prompt = "Génère un QCM sur le sujet suivant : " . $subject;
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -39,9 +47,21 @@ class KnowledgeController extends Controller
             \Log::error('Gemini API error', ['response' => $response->body()]);
             return response()->json(['message' => 'Erreur avec l\'API Gemini'], 500);
         }
+
         $generatedText = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? 'Aucun texte généré.';
+
+        // Créer un QCM dans la base de données
+        $qcm = \App\Models\Qcm::create([
+            'subject' => $subject,
+            'generated_qcm' => $generatedText,
+        ]);
+
+        return redirect()->back();
+
         return response()->json([
-            'qcm' => $result['candidates'][0]['content']['parts'][0]['text'] ?? '{}'
+            'qcm' => $generatedText,
+            'subject' => $subject,
+            'id' => $qcm->id,
         ]);
 
     }
