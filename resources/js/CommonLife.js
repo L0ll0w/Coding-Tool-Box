@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const commonLifeContainer = document.querySelector('#common-life-container');
+
+    if( !commonLifeContainer ) return;
 
 
     /* ------------------ Fonction pour mettre à jour le message "Aucune tâche à afficher" ------------------ */

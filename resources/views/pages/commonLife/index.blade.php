@@ -38,7 +38,7 @@
 
 
     <!-- Affichage des tâches -->
-    <div class="py-12">
+    <div id="common-life-container" class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div id="tasksContainer" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @if(isset($tasks) && $tasks->count() > 0)
@@ -125,6 +125,7 @@
             </div>
         </div>
     </div>
+
 
 
 

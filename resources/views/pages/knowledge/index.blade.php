@@ -6,4 +6,13 @@
             </span>
         </h1>
     </x-slot>
+    <form action="{{route('knowledge.qcm')}}" type="GET">
+        @csrf
+        <x-forms.primary-button type="button" data-modal-toggle="#modal-qcm">
+            Génerer un qcm
+        </x-forms.primary-button>
+    </form>
+
+    @include('pages.knowledge.modal-qcm')
 </x-app-layout>
+

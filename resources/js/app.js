@@ -1,5 +1,6 @@
-import './bootstrap';
+//import './knowledge';
 import './CommonLife';
+
 
 import Alpine from 'alpinejs';
 
