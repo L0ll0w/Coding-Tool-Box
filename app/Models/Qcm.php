@@ -9,8 +9,10 @@ class Qcm extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'subject',
-        'generated_qcm',
-    ];
+    protected $fillable = ['subject', 'generated_qcm', /* autres colonnes */];
+
+    public function questions()
+    {
+        return $this->hasMany(QcmQuestion::class);
+    }
 }

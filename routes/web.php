@@ -58,6 +58,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/task-submissions', [TaskSubmissionController::class, 'store'])->name('task.submissions.store');
         Route::get('/my-task-history', [TaskSubmissionController::class, 'history'])->name('my-task-history');
 
+
+
+        Route::get('/knowledge', [KnowledgeController::class, 'index'])->name('knowledge.index');
+        Route::get('/knowledge/qcm', [KnowledgeController::class, 'qcm'])->name('knowledge.qcm');
+        Route::get('/knowledge/take/{id}', [KnowledgeController::class, 'take'])->name('knowledge.take');
+        Route::post('/knowledge/submit/{id}', [KnowledgeController::class, 'submit'])->name('knowledge.submit');
+
+
     });
 
 });

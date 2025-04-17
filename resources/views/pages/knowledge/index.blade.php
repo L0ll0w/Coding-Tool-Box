@@ -7,15 +7,13 @@
         </h1>
     </x-slot>
 
-    <!-- Bouton pour ouvrir la modale de génération de QCM -->
+    <!-- Bouton pour ouvrir le modal de génération de QCM -->
     <x-forms.primary-button type="button" data-modal-toggle="#modal-qcm">
         Générer un QCM
     </x-forms.primary-button>
 
-    <!-- Inclusion du modal de QCM -->
     @include('pages.knowledge.modal-qcm')
 
-    <!-- Affichage éventuel des QCM générés -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <h2 class="text-2xl font-bold mb-4">Mes QCM générés</h2>
@@ -24,7 +22,10 @@
                     @foreach($qcms as $qcm)
                         <div class="bg-white shadow rounded p-4">
                             <h3 class="text-xl font-bold">{{ $qcm->subject }}</h3>
-                            <p class="mt-2">{{ $qcm->generated_qcm }}</p>
+                            <!-- Ici vous pouvez ajouter un lien ou un bouton pour passer le QCM -->
+                            <a href="{{ route('knowledge.take', $qcm->id) }}" class="mt-2 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Passer le QCM
+                            </a>
                         </div>
                     @endforeach
                 </div>
