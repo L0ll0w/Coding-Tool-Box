@@ -12,6 +12,7 @@ use App\Models\Qcm;
 use App\Models\QcmQuestion;
 use App\Models\QcmChoice;
 use App\Models\QcmStudentAnswer;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\ErrorHandler\Debug;
 
 class KnowledgeController extends Controller
@@ -36,104 +37,116 @@ class KnowledgeController extends Controller
      */
     public function qcm(Request $request)
     {
-        // Valider que le sujet est bien fourni
-        $validated = $request->validate([
+        // 1) Validation du sujet
+        $request->validate([
             'subject' => 'required|string|max:255',
         ]);
+        $subject = $request->input('subject');
 
-        $subject = $validated['subject'];
+        // 2) Prompt pour l'API
+        $prompt = "Génère un QCM structuré au format JSON sur le sujet suivant : {$subject}.\n"
+            . " Le JSON doit commencé par { et finir par } sans et contenir une clé \"questions\" comme ceci :\n"
+            . "{\n"
+            . "  \"questions\": [\n"
+            . "    { \"question\": \"...\", \"choices\": [\"...\",\"...\",\"...\",\"...\"], \"correct\": \"...\" },\n"
+            . "  ]\n"
+            . "}";
 
-        // Construit un prompt précis demandant un format JSON structuré
-        $prompt = "Génère un QCM structuré au format JSON sur le sujet suivant : " . $subject . ".
-Le JSON doit être strictement conforme au format suivant :
-{
-  \"questions\": [
-    {
-      \"question\": \"Texte de la question 1\",
-      \"choices\": [\"Choix A\", \"Choix B\", \"Choix C\", \"Choix D\"],
-      \"correct\": \"Choix B\"
-    },
-    {
-      \"question\": \"Texte de la question 2\",
-      \"choices\": [\"Choix A\", \"Choix B\", \"Choix C\", \"Choix D\"],
-      \"correct\": \"Choix D\"
-    }
-    // etc.
-  ]
-}";
-
-        // Appel à l'API avec le prompt
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . config('services.gemini.api_key'), [
-            'contents' => [
-                [
-                    'parts' => [
-                        ['text' => $prompt]
-                    ]
-                ]
-            ]
-        ]);
+        // 3) Appel à l’API Gemini
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])
+            ->post(
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='
+                . config('services.gemini.api_key'),
+                ['contents' => [['parts' => [['text' => $prompt]]]]]
+            );
 
         if ($response->failed()) {
-            \Log::error('Gemini API error', ['response' => $response->body()]);
-            return response()->json(['message' => 'Erreur avec l\'API Gemini'], 500);
+            Log::error('Gemini API error', ['body' => $response->body()]);
+            return back()->withErrors('Erreur lors de la génération du QCM.');
         }
 
-        $generatedJSON = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+        // 4) Récupérer la chaîne JSON générée
+        $generatedJSON = data_get(
+            $response->json(),
+            'candidates.0.content.parts.0.text',
+            '{"questions":[]}'
+        );
 
-        // Si aucun texte n'est généré, on fournit un fallback
-        if (!$generatedJSON) {
-            $generatedJSON = '{"questions": []}';
+        // 1) On récupère la chaîne brute
+        $raw = $response->json('candidates.0.content.parts.0.text', '');
+
+// 2) On retire les fences Markdown ```json et ```
+        $clean = preg_replace('#```(?:json)?#', '', $raw);
+
+// 3) On trim pour ôter espaces et retours à la ligne superflus
+        $clean = trim($clean);
+
+// 4) On extrait tout ce qui est entre la première accolade ouvrante et la dernière fermante
+        if (preg_match('/\{.*\}/s', $clean, $m)) {
+            $jsonOnly = $m[0];
+        } else {
+            // si pas de match, on garde tout
+            $jsonOnly = $clean;
         }
 
-        // Nettoyer et décoder le JSON
+// 5) On décode
+        $data = json_decode($jsonOnly, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            \Log::error('Erreur JSON lors du parsing du QCM généré', [
-                'error' => json_last_error_msg(),
-                'json' => $generatedJSON,
-            ]);
-            return response()->json(['message' => 'Le format du QCM généré est invalide'], 500);
+            Log::error('JSON invalide après nettoyage : '. json_last_error_msg(), ['string'=>$jsonOnly]);
+            return back()->withErrors('Le QCM généré n’est pas un JSON valide.');
         }
 
-        // Créer le QCM dans la base de données
+        // 6) Créer le QCM
         $qcm = Qcm::create([
-            'subject' => $subject,
+            'subject'       => $subject,
             'generated_qcm' => $generatedJSON,
         ]);
 
-        // Boucler sur les questions et les choix pour enregistrer la structure
+        // 7) Boucler sur les questions + choix
         if (!empty($data['questions']) && is_array($data['questions'])) {
-            foreach ($data['questions'] as $questionData) {
-                if (!isset($questionData['question']) || !isset($questionData['choices'])) {
+
+            Log::debug('Début des questions', ['count' => count($data['questions'])]);
+
+            foreach ($data['questions'] as $idx => $qItem) {
+                // Sanity check
+                if (empty($qItem['question']) || empty($qItem['choices']) || !is_array($qItem['choices'])) {
+                    Log::warning("Question #{$idx} ignorée (format invalide)", $qItem);
                     continue;
                 }
 
-                $question = \App\Models\QcmQuestion::create([
-                    'qcm_id' => $qcm->id,
-                    'question_text' => $questionData['question'],
-
+                // a) Création de la question
+                $question = QcmQuestion::create([
+                    'qcm_id'        => $qcm->id,
+                    'question_text' => $qItem['question'],
                 ]);
+                Log::debug("Question #{$idx} enregistrée", ['id'=>$question->id]);
 
-                foreach ($questionData['choices'] as $choiceText) {
-                    $isCorrect = false;
-                    if (isset($questionData['correct']) && $choiceText === $questionData['correct']) {
-                        $isCorrect = true;
-                    }
-                    \App\Models\QcmChoice::create([
+                // b) Création des choix
+                foreach ($qItem['choices'] as $cIdx => $text) {
+                    $choice = QcmChoice::create([
                         'qcm_question_id' => $question->id,
-                        'choice_text' => $choiceText,
-                        'is_correct' => $isCorrect,
+                        'choice_text'     => $text,
+                        'is_correct'      => isset($qItem['correct']) && $text === $qItem['correct'],
+                    ]);
+                    Log::debug("Choix #{$cIdx} créé pour question {$question->id}", [
+                        'choice_id' => $choice->id,
+                        'correct'   => $choice->is_correct,
                     ]);
                 }
             }
+
+            Log::debug('Fin des questions');
+        } else {
+            Log::info('Aucune question à traiter', ['data' => $data]);
         }
 
-
-        // Optionnel : retourner un JSON ou rediriger la page
-        return redirect()->back();
+        // 8) Redirection vers la page de passage du QCM
+        return redirect()
+            ->route('knowledge.index', $qcm->id)
+            ->with('success', 'QCM généré et enregistré.');
     }
+
 
     /**
      * Affiche la page permettant de passer un QCM, avec ses questions et ses choix.
@@ -174,7 +187,7 @@ Le JSON doit être strictement conforme au format suivant :
 
         // Optionnel : vous pouvez calculer un score ici et sauvegarder le résultat.
 
-        return redirect()->route('knowledge.take', $qcm->id)
+        return redirect()->route('knowledge.index', $qcm->id)
             ->with('success', 'Vos réponses ont été enregistrées.');
     }
 }
