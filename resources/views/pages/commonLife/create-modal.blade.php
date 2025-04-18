@@ -9,7 +9,7 @@
         @csrf
         <!-- Champ caché pour l'ID de la tâche en mode édition -->
         <input type="hidden" id="taskId" name="taskId" value="">
-        <!-- Champ caché pour l'override de méthode (_method sera mis à "PUT" en modification) -->
+
         <input type="hidden" id="overrideMethod" name="_method" value="">
         <div class="mb-4">
             <label for="title" class="block text-gray-700 mb-1">Titre</label>

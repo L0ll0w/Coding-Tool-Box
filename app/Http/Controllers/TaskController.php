@@ -24,7 +24,7 @@ class TaskController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Pour déboguer, vous pouvez temporairement ajouter dd($request->all());
+
         $task = Task::findOrFail($id);
 
         $validated = $request->validate([
@@ -37,7 +37,7 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-
+    // fonction pour destroy une tache de la bdd
     public function destroy($id): \Illuminate\Http\JsonResponse
     {
         $task = Task::findOrFail($id);

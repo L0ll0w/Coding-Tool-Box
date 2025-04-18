@@ -75,13 +75,13 @@ class KnowledgeController extends Controller
         // 1) On récupère la chaîne brute
         $raw = $response->json('candidates.0.content.parts.0.text', '');
 
-// 2) On retire les fences Markdown ```json et ```
+        // 2) On retire les fences Markdown ```json et ```
         $clean = preg_replace('#```(?:json)?#', '', $raw);
 
-// 3) On trim pour ôter espaces et retours à la ligne superflus
+        // 3) On trim pour ôter espaces et retours à la ligne superflus
         $clean = trim($clean);
 
-// 4) On extrait tout ce qui est entre la première accolade ouvrante et la dernière fermante
+        // 4) On extrait tout ce qui est entre la première accolade ouvrante et la dernière fermante
         if (preg_match('/\{.*\}/s', $clean, $m)) {
             $jsonOnly = $m[0];
         } else {
@@ -89,7 +89,7 @@ class KnowledgeController extends Controller
             $jsonOnly = $clean;
         }
 
-// 5) On décode
+        // 5) On décode
         $data = json_decode($jsonOnly, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -185,7 +185,6 @@ class KnowledgeController extends Controller
             ]);
         }
 
-        // Optionnel : vous pouvez calculer un score ici et sauvegarder le résultat.
 
         return redirect()->route('knowledge.index', $qcm->id)
             ->with('success', 'Vos réponses ont été enregistrées.');

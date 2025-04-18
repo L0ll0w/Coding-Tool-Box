@@ -98,3 +98,11 @@ npm run dev
 - 🧠 Génération automatique de QCM par langage sélectionné
 - ✅ Système de Kanban pour les rétrospectives
 - 📈 Statistiques d’usage et suivi pédagogique
+
+
+## Commentaire de rendus
+
+- toute les storys sont finis(sauf ajout des nouveaux backlogs)
+- grosse dificulté sur l'implementation d'api et le stockage des données dans la bdd ( mais jai reussi apres une longue nuit a me battre yeepeeee)
+
+je suis plutot contant de ce que j'ai accomplis ces deux derniere semaine je pensais pas reussir a allé jusqu'au bout !
