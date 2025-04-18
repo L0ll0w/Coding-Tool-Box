@@ -102,6 +102,7 @@ npm run dev
 
 ## Commentaire de rendus
 
+- ia : gemini
 - toute les storys sont finis(sauf ajout des nouveaux backlogs)
 - grosse dificulté sur l'implementation d'api et le stockage des données dans la bdd ( mais jai reussi apres une longue nuit a me battre yeepeeee)
 
